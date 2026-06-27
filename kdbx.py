@@ -3,6 +3,7 @@
 # dependencies = ["pykeepass>=4.1,<5", "python-dotenv", "filelock", "platformdirs"]
 # ///
 """kdbx — per-project/per-env KeePassXC credential manager. See SKILL.md."""
+
 import os
 import sys
 

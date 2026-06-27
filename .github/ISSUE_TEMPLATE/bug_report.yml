@@ -1,0 +1,50 @@
+name: Bug report
+description: Report a problem with the kdbx skill or CLI
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report! **Never paste a real secret, vault, or key file.** Redact values.
+        For security vulnerabilities, do not file here — see [SECURITY.md](https://github.com/yarrasys/kdbx-skill/blob/main/SECURITY.md).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+      placeholder: Steps to reproduce, the command run (with secrets redacted), and the result.
+    validations:
+      required: true
+  - type: input
+    id: kdbx-version
+    attributes:
+      label: kdbx version
+      description: Output of `uv run --locked kdbx.py --version`
+    validations:
+      required: false
+  - type: dropdown
+    id: os
+    attributes:
+      label: Operating system
+      options:
+        - macOS
+        - Linux
+        - Windows
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: uv-version
+    attributes:
+      label: uv version
+      description: Output of `uv --version`
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / error output
+      description: Re-run with `KDBX_DEBUG=1` for a full traceback. Redact any secret values.
+      render: shell
+    validations:
+      required: false

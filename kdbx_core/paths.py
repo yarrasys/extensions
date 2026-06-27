@@ -1,7 +1,8 @@
 """OS-aware resolution of the KeePassXC config dir and pointer paths."""
+
 import os
-import platform
 import pathlib
+import platform
 
 _SYNC_ROOTS = ("OneDrive", "Dropbox", "iCloud", "iCloudDrive", "Nextcloud", "Google Drive")
 
@@ -12,9 +13,7 @@ def keepassxc_dir() -> pathlib.Path:
     if override:
         return pathlib.Path(override)
     if platform.system() == "Windows":
-        base = os.environ.get("LOCALAPPDATA") or os.path.expandvars(
-            r"%USERPROFILE%\AppData\Local"
-        )
+        base = os.environ.get("LOCALAPPDATA") or os.path.expandvars(r"%USERPROFILE%\AppData\Local")
         return pathlib.Path(base) / "keepassxc"
     base = os.environ.get("XDG_CONFIG_HOME") or os.path.join(pathlib.Path.home(), ".config")
     return pathlib.Path(base) / "keepassxc"

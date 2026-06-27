@@ -1,9 +1,10 @@
 """CLI dispatch + core operations: init/set/get/list/delete/mv/envs."""
+
 import argparse
 import pathlib
 import sys
 
-from . import context, ops_extra, pointer, secretio, vault
+from . import __version__, context, ops_extra, pointer, secretio, vault
 
 
 def _ctx(args, mutating):
@@ -34,9 +35,7 @@ def cmd_set(args) -> int:
         pt = pointer.load_pointer(c.pointer_path)
         pt["envs"].setdefault(c.env, {}).setdefault("vars", {})[args.var] = args.path
         pointer.write_pointer(c.pointer_path, pt)
-        sys.stderr.write(
-            f"modified tracked file {c.pointer_path.name} — review and commit\n"
-        )
+        sys.stderr.write(f"modified tracked file {c.pointer_path.name} — review and commit\n")
     return 0
 
 
@@ -96,7 +95,10 @@ def _common(sp) -> None:
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="kdbx", description="kdbx — per-project/per-env KeePassXC credentials")
+    p = argparse.ArgumentParser(
+        prog="kdbx", description="kdbx — per-project/per-env KeePassXC credentials"
+    )
+    p.add_argument("--version", action="version", version=f"kdbx {__version__}")
     sub = p.add_subparsers(dest="command", required=True)
 
     sp = sub.add_parser("init")

@@ -36,8 +36,13 @@ def test_run_injects_env(repo_with_secret, tmp_path):
     out = tmp_path / "got.txt"
     rc = ops.dispatch(
         [
-            "run", "--env", "dev", "--yes", "--",
-            sys.executable, "-c",
+            "run",
+            "--env",
+            "dev",
+            "--yes",
+            "--",
+            sys.executable,
+            "-c",
             f"import os,pathlib;pathlib.Path(r'{out}').write_text(os.environ['OPENAI_API_KEY'])",
         ]
     )
@@ -66,7 +71,11 @@ def test_export_roundtrip_multiline(tmp_path, monkeypatch):
     (tmp_path / ".gitignore").write_text(".env\n")
     (tmp_path / ".keepassxc.json").write_text(
         json.dumps(
-            {"project": "p", "defaultEnv": "dev", "envs": {"dev": {"vars": {"PEM": "k/pem:password"}}}}
+            {
+                "project": "p",
+                "defaultEnv": "dev",
+                "envs": {"dev": {"vars": {"PEM": "k/pem:password"}}},
+            }
         )
     )
     ops.dispatch(["init", "--env", "dev"])

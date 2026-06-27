@@ -1,4 +1,5 @@
 """Discovery and parsing of the committed .keepassxc.json pointer file."""
+
 import json
 import os
 import pathlib

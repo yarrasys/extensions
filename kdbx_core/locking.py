@@ -1,4 +1,5 @@
 """Advisory write lock + open-time integrity capture to prevent silent lost updates."""
+
 import contextlib
 import hashlib
 import pathlib

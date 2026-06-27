@@ -1,0 +1,12 @@
+version: 2
+updates:
+  # Keep GitHub Actions pinned versions fresh. (Python deps are pinned in kdbx.py.lock,
+  # which is regenerated with `uv lock --script kdbx.py`.)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    labels:
+      - "dependencies"

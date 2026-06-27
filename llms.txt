@@ -1,0 +1,42 @@
+# kdbx-skill
+
+> A Claude Code skill (and standalone CLI) that manages per-project, per-env credentials in
+> key-file-only KeePassXC `.kdbx` vaults. It replaces `.env` as the source of truth for secrets,
+> API keys, and tokens, and injects them into commands without printing them into the transcript,
+> logs, or shell history.
+
+kdbx is a single PEP-723 Python script run via `uv` (no global installs). Vaults are KDBX4 +
+Argon2, unlocked by a key file only (no master password), one vault per project per environment.
+A committed `.keepassxc.json` pointer maps environment-variable names to vault entries, so a repo
+documents its own secret contract without exposing values. Designed for AI coding agents: the
+agent handles entry paths and variable names only — it never authors or observes a secret value.
+
+## Core docs
+
+- [SKILL.md](https://github.com/yarrasys/kdbx-skill/blob/main/SKILL.md): agent-facing skill definition — when to use, invocation, the 12 operations, security do/don'ts.
+- [README](https://github.com/yarrasys/kdbx-skill/blob/main/README.md): overview, install, quickstart, features.
+- [references/schema.md](https://github.com/yarrasys/kdbx-skill/blob/main/references/schema.md): the `.keepassxc.json` pointer schema and entry-path grammar.
+- [references/security.md](https://github.com/yarrasys/kdbx-skill/blob/main/references/security.md): threat model, `run` trust boundary, rotation and leak runbooks.
+- [references/fallback.md](https://github.com/yarrasys/kdbx-skill/blob/main/references/fallback.md): read-only `keepassxc-cli` commands for environments without uv.
+
+## Operations
+
+init · set · get · list · delete · mv · run · export · import · check · envs · rekey
+
+- `set PATH` — store a secret (value via stdin or `--from-env`, never on argv).
+- `get PATH [--reveal|--clip]` — masked by default.
+- `run -- CMD` — inject the env's mapped secrets into a child process and exec it; never printed.
+- `export [--out F]` — render mapped vars as a 0600 dotenv for tools that require a file.
+- `import FILE` — migrate an existing `.env` into the vault.
+- `check` — verify the pointer's var map resolves (non-zero exit on drift).
+
+## Install & run
+
+- Install as a skill: `git clone https://github.com/yarrasys/kdbx-skill ~/.claude/skills/kdbx`
+- Invoke: `uv run --locked ~/.claude/skills/kdbx/kdbx.py <op>`
+- Requires [uv](https://docs.astral.sh/uv/); the engine `pykeepass` (GPL-3.0) is fetched at runtime, never bundled.
+
+## Design & implementation (for deeper context)
+
+- [Design spec](https://github.com/yarrasys/kdbx-skill/blob/main/docs/superpowers/specs/2026-06-27-kdbx-skill-design.md): the full, empirically-hardened design.
+- [Implementation plan](https://github.com/yarrasys/kdbx-skill/blob/main/docs/superpowers/plans/2026-06-27-kdbx-skill.md): the TDD task breakdown.

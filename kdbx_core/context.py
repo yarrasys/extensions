@@ -1,4 +1,5 @@
 """Environment resolution + safety gate (prod / inherited $KDBX_ENV require --yes)."""
+
 import pathlib
 import sys
 from dataclasses import dataclass

@@ -3,6 +3,7 @@
 Callers pass/receive plain types (paths, names, str) — never pykeepass objects —
 so this module is the single swap point for a future permissive engine.
 """
+
 import hashlib
 import os
 import pathlib

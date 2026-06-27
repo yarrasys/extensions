@@ -1,4 +1,5 @@
 """Secret I/O: masked output, transcript-safe input, perms, dotenv, clipboard, error scrub."""
+
 import functools
 import getpass
 import io as _io

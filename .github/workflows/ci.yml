@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    # Windows paths are designed but not yet verified; surface signal without blocking the badge.
+    continue-on-error: ${{ matrix.os == 'windows-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.2.0
+        with:
+          enable-cache: true
+      - name: Smoke the locked entrypoint
+        run: uv run --locked kdbx.py --version
+      - name: Run tests
+        run: >-
+          uv run --with pytest --with pykeepass --with python-dotenv
+          --with filelock --with platformdirs python -m pytest -q
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: astral-sh/setup-uv@v8.2.0
+      - name: Ruff (lint + format check)
+        run: |
+          uvx ruff check .
+          uvx ruff format --check .
+      - name: Lockfile is current
+        run: uv lock --script kdbx.py --check

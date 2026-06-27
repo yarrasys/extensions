@@ -1,4 +1,5 @@
 """End-to-end lifecycle, secret-leak, and cross-engine interop (spec §13)."""
+
 import importlib
 import io
 import json
@@ -72,8 +73,13 @@ def test_full_lifecycle(repo, monkeypatch, capsys):
     got = repo / "child.txt"
     rc = ops.dispatch(
         [
-            "run", "--env", "dev", "--yes", "--",
-            sys.executable, "-c",
+            "run",
+            "--env",
+            "dev",
+            "--yes",
+            "--",
+            sys.executable,
+            "-c",
             f"import os,pathlib;pathlib.Path(r'{got}').write_text(os.environ['OPENAI_API_KEY'])",
         ]
     )
@@ -91,8 +97,9 @@ def test_full_lifecycle(repo, monkeypatch, capsys):
 
     assert ops.dispatch(["delete", "api/oai", "--purge", "--env", "dev"]) == 0
 
-    # perms stayed 0600 across all the saves above
-    assert stat.S_IMODE(_vault_path(repo).stat().st_mode) == 0o600
+    # perms stayed 0600 across all the saves above (POSIX; Windows uses ACLs)
+    if os.name != "nt":
+        assert stat.S_IMODE(_vault_path(repo).stat().st_mode) == 0o600
 
     # the secret never leaked to stdout/stderr across the masked/safe ops
     captured = capsys.readouterr()
@@ -109,7 +116,9 @@ def test_set_never_puts_secret_in_argv(repo, monkeypatch):
 
 
 def test_cli_help_via_uv():
-    r = subprocess.run(["uv", "run", "kdbx.py", "--help"], capture_output=True, text=True, cwd=os.getcwd())
+    r = subprocess.run(
+        ["uv", "run", "kdbx.py", "--help"], capture_output=True, text=True, cwd=os.getcwd()
+    )
     assert r.returncode == 0
     assert "kdbx" in (r.stdout + r.stderr).lower()
 

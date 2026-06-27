@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/yarrasys/kdbx-skill/security/advisories/new
+    about: Please report vulnerabilities privately, not as public issues. See SECURITY.md.
+  - name: 💬 Questions & ideas (Discussions)
+    url: https://github.com/yarrasys/kdbx-skill/discussions
+    about: Ask questions or discuss ideas here.
+  - name: ✉️ Contact Yarrasys
+    url: mailto:hello@yarrasys.com
+    about: For anything that doesn't fit an issue.

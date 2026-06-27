@@ -22,6 +22,7 @@ Key points a user must understand:
 
 ## Reporting a vulnerability
 
-Please report suspected vulnerabilities privately to the maintainer rather than
-opening a public issue: **nabsha.dev@gmail.com**. Include a description, repro
-steps, and impact. You'll get an acknowledgement and a fix timeline.
+Please report suspected vulnerabilities privately rather than opening a public issue —
+either through GitHub's [private vulnerability reporting](https://github.com/yarrasys/kdbx-skill/security/advisories/new)
+or by email to **hello@yarrasys.com**. Include a description, repro steps, and impact.
+You'll get an acknowledgement and a fix timeline.
