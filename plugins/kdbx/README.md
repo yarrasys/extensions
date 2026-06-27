@@ -50,8 +50,8 @@ Design notes:
 - **Allowlists** `kdbx`, `kdbx.py`, `keepassxc-cli`, `keepassxc`, and
   `uv`/`uvx` running `kdbx`.
 
-Disable it by removing `hooks` from `plugin.json`, or uninstall the plugin and
-keep using the standalone skill.
+Disable it by removing `hooks/hooks.json` (or uninstall the plugin) and keep
+using the standalone skill.
 
 ### MCP server (`mcp/server.py`)
 

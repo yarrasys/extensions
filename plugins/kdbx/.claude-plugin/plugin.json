@@ -8,9 +8,5 @@
   },
   "homepage": "https://github.com/yarrasys/skills/tree/main/plugins/kdbx",
   "license": "MIT",
-  "keywords": ["secrets", "credentials", "keepassxc", "kdbx", "security", "dotenv"],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json",
-  "commands": "./commands/",
-  "mcpServers": "./.mcp.json"
+  "keywords": ["secrets", "credentials", "keepassxc", "kdbx", "security", "dotenv"]
 }
