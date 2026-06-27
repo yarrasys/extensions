@@ -49,6 +49,10 @@ ln -s "$PWD/skills/skills/kdbx" ~/.claude/skills/kdbx
 
 ## Quickstart
 
+![kdbx in action: init → set → get → run → check, with the secret never printed](docs/demo.gif)
+
+<sub>Demo recorded with [VHS](https://github.com/charmbracelet/vhs) — regenerate with `vhs skills/kdbx/docs/demo.tape` from the repo root (see [`docs/demo.tape`](docs/demo.tape)).</sub>
+
 ```bash
 # A pointer at your repo root (committed; contains no secrets)
 cat > .keepassxc.json <<'JSON'
