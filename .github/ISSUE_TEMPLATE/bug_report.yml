@@ -1,12 +1,21 @@
 name: Bug report
-description: Report a problem with the kdbx skill or CLI
-labels: ["bug"]
+description: Report a problem with a skill in this repo
+labels: ["bug", "skill: kdbx"]
 body:
   - type: markdown
     attributes:
       value: |
         Thanks for the report! **Never paste a real secret, vault, or key file.** Redact values.
-        For security vulnerabilities, do not file here — see [SECURITY.md](https://github.com/yarrasys/kdbx-skill/blob/main/SECURITY.md).
+        For security vulnerabilities, do not file here — see [SECURITY.md](https://github.com/yarrasys/skills/blob/main/SECURITY.md).
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      description: Which skill does this concern?
+      options:
+        - kdbx
+    validations:
+      required: true
   - type: textarea
     id: what-happened
     attributes:

@@ -1,7 +1,16 @@
 name: Feature request
 description: Suggest an improvement or new capability
-labels: ["enhancement"]
+labels: ["enhancement", "skill: kdbx"]
 body:
+  - type: dropdown
+    id: skill
+    attributes:
+      label: Skill
+      description: Which skill does this concern?
+      options:
+        - kdbx
+    validations:
+      required: true
   - type: textarea
     id: problem
     attributes:

@@ -1,7 +1,7 @@
 # AGENTS.md
 
 Guidance for AI coding agents working **in** this repository (and using the skill it ships).
-See also [SKILL.md](SKILL.md) (how to *use* kdbx) and [CONTRIBUTING.md](CONTRIBUTING.md).
+See also [SKILL.md](skills/kdbx/SKILL.md) (how to *use* kdbx) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## What this repo is
 
@@ -20,13 +20,13 @@ shipped as a Claude Code skill. It manages credentials in key-file-only KeePassX
 
 - **Run the tests:** `uv run --with pytest --with pykeepass --with python-dotenv --with filelock --with platformdirs python -m pytest`
 - **Lint:** `uvx ruff check .` (and `uvx ruff format .`).
-- **Smoke the locked entrypoint:** `uv run --locked kdbx.py --version`.
-- **Engine boundary:** only `kdbx_core/vault.py` may import `pykeepass`. Keep its public interface
+- **Smoke the locked entrypoint:** `uv run --locked skills/kdbx/kdbx.py --version`.
+- **Engine boundary:** only `skills/kdbx/kdbx_core/vault.py` may import `pykeepass`. Keep its public interface
   engine-agnostic (plain paths/str in and out) — it is the single swap point for a permissive engine.
 - **TDD:** add a failing test first; keep the suite green. CI runs on Linux/macOS/Windows.
-- **Lockfile:** if you change `kdbx.py` deps, run `uv lock --script kdbx.py` and commit `kdbx.py.lock`.
+- **Lockfile:** if you change `kdbx.py` deps, run `uv lock --script skills/kdbx/kdbx.py` and commit `kdbx.py.lock`.
 - **Docs of record:** the design spec and plan live under `docs/superpowers/`.
 
 ## Tracking
 
-File bugs, ideas, and follow-ups as **GitHub Issues**: https://github.com/yarrasys/kdbx-skill/issues
+File bugs, ideas, and follow-ups as **GitHub Issues**: https://github.com/yarrasys/skills/issues

@@ -14,8 +14,8 @@ Thanks for your interest! Contributions — bug reports, fixes, docs, and especi
 Requires [uv](https://docs.astral.sh/uv/) (the only prerequisite — it provides Python + deps).
 
 ```bash
-git clone https://github.com/yarrasys/kdbx-skill
-cd kdbx-skill
+git clone https://github.com/yarrasys/skills
+cd skills
 
 # run the test suite
 uv run --with pytest --with pykeepass --with python-dotenv --with filelock --with platformdirs python -m pytest
@@ -25,16 +25,16 @@ uvx ruff check .
 uvx ruff format .
 
 # smoke the locked entrypoint
-uv run --locked kdbx.py --version
+uv run --locked skills/kdbx/kdbx.py --version
 ```
 
 ## Pull requests
 
-1. Open an [issue](https://github.com/yarrasys/kdbx-skill/issues) first for anything non-trivial.
+1. Open an [issue](https://github.com/yarrasys/skills/issues) first for anything non-trivial.
 2. Work **test-first (TDD)** — add a failing test, then the minimal code to pass it. Keep the suite green.
 3. Run `ruff check` / `ruff format` before pushing. CI runs tests on Linux/macOS/Windows + lint.
-4. If you change the dependencies declared in `kdbx.py`, run `uv lock --script kdbx.py` and commit `kdbx.py.lock`.
-5. Keep `kdbx_core/vault.py` the **only** module importing `pykeepass`, with an engine-agnostic interface.
+4. If you change the dependencies declared in `kdbx.py`, run `uv lock --script skills/kdbx/kdbx.py` and commit `kdbx.py.lock`.
+5. Keep `skills/kdbx/kdbx_core/vault.py` the **only** module importing `pykeepass`, with an engine-agnostic interface.
 6. Update `CHANGELOG.md` under `## [Unreleased]`.
 
 ## Security

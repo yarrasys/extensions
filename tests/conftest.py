@@ -3,7 +3,9 @@ import sys
 
 import pytest
 
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent.parent))  # repo root on path
+# the skill package lives under skills/kdbx/ — put it on the path so `import kdbx_core` works
+SKILL_DIR = pathlib.Path(__file__).resolve().parent.parent / "skills" / "kdbx"
+sys.path.insert(0, str(SKILL_DIR))
 
 
 @pytest.fixture

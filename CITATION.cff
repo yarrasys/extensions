@@ -11,8 +11,8 @@ authors:
     given-names: Nabeel
     email: hello@yarrasys.com
     affiliation: Yarrasys
-repository-code: "https://github.com/yarrasys/kdbx-skill"
-url: "https://github.com/yarrasys/kdbx-skill"
+repository-code: "https://github.com/yarrasys/skills"
+url: "https://github.com/yarrasys/skills"
 license: MIT
 version: "0.1.0"
 date-released: "2026-06-27"

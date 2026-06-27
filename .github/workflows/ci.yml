@@ -28,7 +28,7 @@ jobs:
         with:
           enable-cache: true
       - name: Smoke the locked entrypoint
-        run: uv run --locked kdbx.py --version
+        run: uv run --locked skills/kdbx/kdbx.py --version
       - name: Run tests
         run: >-
           uv run --with pytest --with pykeepass --with python-dotenv
@@ -45,4 +45,4 @@ jobs:
           uvx ruff check .
           uvx ruff format --check .
       - name: Lockfile is current
-        run: uv lock --script kdbx.py --check
+        run: uv lock --script skills/kdbx/kdbx.py --check

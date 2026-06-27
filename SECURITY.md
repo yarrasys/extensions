@@ -8,9 +8,9 @@
 The full threat model — key-file-only unlock, secret-handling invariants
 (the agent never authors or observes a value; nothing on argv/stdout), the
 0600/ACL permission model, the soft-delete-is-recoverable property, and the
-`run` env-injection trust boundary — is documented in the design spec
-(`docs/superpowers/specs/2026-06-27-kdbx-skill-design.md`, §8/§12) and will move
-to `references/security.md` on implementation.
+`run` env-injection trust boundary — is documented in
+[`skills/kdbx/references/security.md`](skills/kdbx/references/security.md) and the design spec
+(`docs/superpowers/specs/2026-06-27-kdbx-skill-design.md`, §8/§12).
 
 Key points a user must understand:
 
@@ -23,6 +23,6 @@ Key points a user must understand:
 ## Reporting a vulnerability
 
 Please report suspected vulnerabilities privately rather than opening a public issue —
-either through GitHub's [private vulnerability reporting](https://github.com/yarrasys/kdbx-skill/security/advisories/new)
+either through GitHub's [private vulnerability reporting](https://github.com/yarrasys/skills/security/advisories/new)
 or by email to **hello@yarrasys.com**. Include a description, repro steps, and impact.
 You'll get an acknowledgement and a fix timeline.

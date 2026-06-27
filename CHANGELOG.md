@@ -24,5 +24,5 @@ Initial release.
   prod / inherited-`$KDBX_ENV` write gate.
 - Ships as a Claude Code skill (`SKILL.md` + `references/`); 46-test suite.
 
-[Unreleased]: https://github.com/yarrasys/kdbx-skill/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/yarrasys/kdbx-skill/releases/tag/v0.1.0
+[Unreleased]: https://github.com/yarrasys/skills/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/yarrasys/skills/releases/tag/v0.1.0
