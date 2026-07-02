@@ -13,6 +13,11 @@ Releases are tagged `deepseek/v<version>`.
 - Worktree+patch isolation by default; `--in-place` opt-in. Per-project `.deepseek.json`
   with autonomy modes (explicit/suggest/auto) and guardrails (deny-globs, per-run cost cap,
   recursion guard).
+- **Plugin wrapper** (`plugins/deepseek`, v0.1.0): a `PreToolUse` autonomy-guard hook that turns
+  the soft `mode` contract hard — refuses `--in-place` in `auto` mode, refuses agent-initiated
+  `delegate` in `explicit` mode without the sanctioned `DEEPSEEK_DELEGATE_APPROVED` sentinel, and
+  refuses to recurse — plus `/deepseek:*` slash commands (delegate/apply/check/config/init). The
+  skill is bundled by symlink; no MCP server (deferred as YAGNI).
 
 ### Fixed
 

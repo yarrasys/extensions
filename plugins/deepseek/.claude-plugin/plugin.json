@@ -1,0 +1,12 @@
+{
+  "name": "deepseek",
+  "version": "0.1.0",
+  "description": "Offload simple, mechanical dev tasks to a nested headless claude on DeepSeek's endpoint — wraps the deepseek skill with an enforced autonomy-guard hook and /deepseek:* commands.",
+  "author": {
+    "name": "Yarrasys",
+    "url": "https://github.com/yarrasys"
+  },
+  "homepage": "https://github.com/yarrasys/extensions/tree/main/plugins/deepseek",
+  "license": "MIT",
+  "keywords": ["deepseek", "delegation", "token-efficiency", "claude-code", "worktree", "automation"]
+}

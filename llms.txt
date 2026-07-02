@@ -52,6 +52,8 @@ Install (skill): `npx skills add yarrasys/extensions@deepseek` · Requires [uv](
 `git`, and the `claude` CLI on `PATH`; the DeepSeek API key is resolved via [kdbx](skills/kdbx) or
 `$DEEPSEEK_API_KEY` — the agent never authors or observes the key value.
 
+Install (plugin): `/plugin marketplace add yarrasys/extensions` then `/plugin install deepseek@yarrasys-extensions` — adds a `PreToolUse` autonomy-guard hook (enforces the `mode` contract: refuses `--in-place` in `auto`, refuses agent-initiated `delegate` in `explicit` without the sanctioned sentinel, refuses recursion) and `/deepseek:*` commands. No MCP server (deferred).
+
 ## Repository
 
 - [README](https://github.com/yarrasys/extensions/blob/main/README.md): the collection index.
