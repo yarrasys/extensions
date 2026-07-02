@@ -1,9 +1,180 @@
-"""TEMPORARY stub — replaced in Task 8."""
+"""The `delegate` and `apply` operations — orchestrates the nested claude run."""
+
+import json
+import os
+import pathlib
+import subprocess
+import sys
+import uuid
+
+from . import config, guardrails, receipt, runner, workspace
+
+MAX_TURNS = 8
+TIMEOUT_S = 900
+ALLOWED_TOOLS = ["Read", "Edit", "Write", "Bash"]
+COST_NOTE = "child-reported, Anthropic-priced — approximate"
+
+
+def _emit(rc_dict: dict) -> None:
+    sys.stdout.write(json.dumps(rc_dict, indent=2) + "\n")
+
+
+def _run_verify(cmd, cwd, files):
+    if not cmd:
+        return None, 0
+    expanded = cmd.replace("{file}", " ".join(files)) if files else cmd
+    proc = subprocess.run(expanded, shell=True, cwd=str(cwd), capture_output=True, text=True)
+    tail = "\n".join((proc.stdout + proc.stderr).strip().splitlines()[-5:])
+    return receipt.verify_result(expanded, proc.returncode, tail), proc.returncode
 
 
 def cmd_delegate(args) -> int:
-    return 0
+    if guardrails.is_recursive(os.environ):
+        sys.stderr.write("deepseek: refusing to recurse (DEEPSEEK_DELEGATE_DEPTH set)\n")
+        return 4
+
+    key = runner.resolve_key(os.environ)
+    if not key:
+        sys.stderr.write(
+            "deepseek: no DEEPSEEK_API_KEY — set it, or have a human run:\n"
+            "  kdbx set api/deepseek --var DEEPSEEK_API_KEY\n"
+        )
+        return 3
+
+    repo = pathlib.Path(args.dir).resolve() if args.dir else pathlib.Path.cwd()
+    cfg = config.load_config(repo)
+    model = args.model or cfg["model"]
+    verify_cmd = args.verify or cfg.get("verifyDefault")
+    isolate = (
+        not args.in_place
+    )  # auto-mode isolation is enforced by the parent choosing not to pass --in-place
+
+    tag = uuid.uuid4().hex[:8]
+    workdir = workspace.create_worktree(repo, tag) if isolate else repo
+
+    try:
+        settings = runner.write_child_settings(workdir, model)
+        argv = runner.build_argv(
+            args.task,
+            model=model,
+            allowed_tools=ALLOWED_TOOLS,
+            settings_path=str(settings),
+            max_turns=MAX_TURNS,
+        )
+        env = runner.build_child_env(os.environ, key)
+        child = runner.run_child(argv, env, workdir, TIMEOUT_S)
+
+        if not child["ok"]:
+            _emit(
+                receipt.build_receipt(
+                    status="error",
+                    workspace="worktree" if isolate else "in_place",
+                    files=[],
+                    verify=None,
+                    patch=None,
+                    cost={"reported_usd": None, "note": COST_NOTE},
+                    turns=0,
+                )
+            )
+            sys.stderr.write(f"deepseek: child failed — {child['stderr_tail']}\n")
+            return 7
+
+        result = child["result"]
+        cost = {"reported_usd": result.get("total_cost_usd"), "note": COST_NOTE}
+        turns = result.get("num_turns", 0)
+        files = workspace.numstat(workdir)
+        changed = [f["path"] for f in files]
+
+        verify, verify_rc = _run_verify(verify_cmd, workdir, changed)
+
+        # guardrails on the resulting change set
+        denied = guardrails.denied_paths(changed, cfg["auto"]["denyGlobs"])
+        over_budget = not guardrails.within_budget(
+            cost["reported_usd"], cfg["auto"]["maxCostUsdPerRun"]
+        )
+
+        ws_label = "worktree" if isolate else "in_place"
+
+        if verify and not verify["passed"]:
+            _emit(
+                receipt.build_receipt(
+                    status="verify_failed",
+                    workspace=ws_label,
+                    files=files,
+                    verify=verify,
+                    patch=None,
+                    cost=cost,
+                    turns=turns,
+                )
+            )
+            return 5
+        if denied:
+            _emit(
+                receipt.build_receipt(
+                    status="denied",
+                    workspace=ws_label,
+                    files=files,
+                    verify=verify,
+                    patch=None,
+                    cost=cost,
+                    turns=turns,
+                )
+            )
+            sys.stderr.write(f"deepseek: change touches denied paths: {denied}\n")
+            return 6
+        if over_budget:
+            _emit(
+                receipt.build_receipt(
+                    status="budget_exceeded",
+                    workspace=ws_label,
+                    files=files,
+                    verify=verify,
+                    patch=None,
+                    cost=cost,
+                    turns=turns,
+                )
+            )
+            return 6
+
+        if isolate:
+            patch_rel = pathlib.Path(".deepseek") / f"edit-{tag}.patch"
+            workspace.write_patch(workdir, repo / patch_rel)
+            _emit(
+                receipt.build_receipt(
+                    status="patch_ready",
+                    workspace="worktree",
+                    files=files,
+                    verify=verify,
+                    patch=str(patch_rel),
+                    cost=cost,
+                    turns=turns,
+                )
+            )
+            return 0
+
+        _emit(
+            receipt.build_receipt(
+                status="applied",
+                workspace="in_place",
+                files=files,
+                verify=verify,
+                patch=None,
+                cost=cost,
+                turns=turns,
+            )
+        )
+        return 0
+    finally:
+        if isolate and workdir.exists():
+            workspace.remove_worktree(repo, workdir)
 
 
 def cmd_apply(args) -> int:
+    repo = pathlib.Path.cwd()
+    patch = (repo / args.patch).resolve()
+    if not patch.is_file():
+        sys.stderr.write(f"deepseek: patch not found: {args.patch}\n")
+        return 2
+    workspace.apply_patch(repo, patch)
+    sys.stderr.write(f"applied {args.patch}\n")
     return 0

@@ -1,0 +1,55 @@
+import importlib
+import json
+import types
+
+ops_delegate = importlib.import_module("deepseek_core.ops_delegate")
+
+
+def _args(**kw):
+    base = dict(task="add docstrings", files=[], dir=None, in_place=False, verify=None, model=None)
+    base.update(kw)
+    return types.SimpleNamespace(**base)
+
+
+def test_delegate_worktree_produces_patch(git_repo, fake_claude, monkeypatch, capsys):
+    monkeypatch.chdir(git_repo)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    # fake claude edits a.py inside whatever cwd it's run in (the worktree)
+    monkeypatch.setenv("FAKE_EDIT_FILE", "a.py")
+    monkeypatch.delenv("DEEPSEEK_DELEGATE_DEPTH", raising=False)
+
+    rc = ops_delegate.cmd_delegate(_args())
+    receipt = json.loads(capsys.readouterr().out)
+    assert receipt["status"] == "patch_ready"
+    assert receipt["workspace"] == "worktree"
+    assert receipt["patch"].endswith(".patch")
+    assert (git_repo / receipt["patch"]).is_file()
+    assert rc == 0
+    # main tree untouched until apply
+    assert "fake claude" not in (git_repo / "a.py").read_text()
+
+
+def test_delegate_refuses_recursion(git_repo, monkeypatch, capsys):
+    monkeypatch.chdir(git_repo)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    monkeypatch.setenv("DEEPSEEK_DELEGATE_DEPTH", "1")
+    assert ops_delegate.cmd_delegate(_args()) == 4
+
+
+def test_delegate_missing_key_returns_3(git_repo, fake_claude, monkeypatch):
+    monkeypatch.chdir(git_repo)
+    monkeypatch.delenv("DEEPSEEK_API_KEY", raising=False)
+    monkeypatch.delenv("DEEPSEEK_DELEGATE_DEPTH", raising=False)
+    assert ops_delegate.cmd_delegate(_args()) == 3
+
+
+def test_delegate_verify_failure_withholds(git_repo, fake_claude, monkeypatch, capsys):
+    monkeypatch.chdir(git_repo)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    monkeypatch.setenv("FAKE_EDIT_FILE", "a.py")
+    monkeypatch.delenv("DEEPSEEK_DELEGATE_DEPTH", raising=False)
+    rc = ops_delegate.cmd_delegate(_args(verify="false"))  # `false` always exits 1
+    receipt = json.loads(capsys.readouterr().out)
+    assert receipt["status"] == "verify_failed"
+    assert receipt["verify"]["passed"] is False
+    assert rc == 5
