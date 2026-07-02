@@ -31,6 +31,27 @@ the engine `pykeepass` (GPL-3.0) is fetched at runtime, never bundled.
 
 Install (plugin): `/plugin marketplace add yarrasys/extensions` then `/plugin install kdbx@yarrasys-extensions` — adds the enforced role-guard + leak-guard hook, a safe MCP server (no value-crossing tools), and `/kdbx:*` commands.
 
+### deepseek — offload-to-DeepSeek delegation skill
+
+> Delegates a bounded, simple dev task (docstrings, formatting, boilerplate, tests, comments,
+> rename) to a nested headless `claude` process running on DeepSeek's Anthropic-compatible
+> endpoint, so the parent session's own tokens aren't spent on mechanical work. Isolates the
+> child in a git worktree by default and returns a reviewable `.patch`; `--in-place` is an
+> opt-in that refuses on a dirty tree. Every run ends in a compact JSON receipt, never prose.
+
+- [SKILL.md](https://github.com/yarrasys/extensions/blob/main/skills/deepseek/SKILL.md): agent-facing skill definition — when to use, invocation, the 5 operations, autonomy modes, receipt statuses, security note.
+
+Operations: `delegate · apply · init · check · config`.
+
+Autonomy modes (`.deepseek.json` → `mode`): `explicit` (delegate only when asked) · `suggest`
+(propose, wait for confirmation) · `auto` (delegate within `allowTasks`/`allowGlobs`/`denyGlobs`/
+`maxCostUsdPerRun`, always isolated). Guardrails: recursion guard (`DEEPSEEK_DELEGATE_DEPTH`),
+deny-globs, per-run cost cap — `maxCostUsdPerSession` is parsed but not enforced in v1.
+
+Install (skill): `npx skills add yarrasys/extensions@deepseek` · Requires [uv](https://docs.astral.sh/uv/),
+`git`, and the `claude` CLI on `PATH`; the DeepSeek API key is resolved via [kdbx](skills/kdbx) or
+`$DEEPSEEK_API_KEY` — the agent never authors or observes the key value.
+
 ## Repository
 
 - [README](https://github.com/yarrasys/extensions/blob/main/README.md): the collection index.

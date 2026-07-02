@@ -63,10 +63,6 @@ def test_delegate_in_place_applies_and_leaves_no_settings_litter(
     monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
     monkeypatch.setenv("FAKE_EDIT_FILE", "a.py")
     monkeypatch.delenv("DEEPSEEK_DELEGATE_DEPTH", raising=False)
-    # fake_claude shares git_repo's tmp_path, so its fakebin/ PATH shim lands
-    # untracked inside the repo root — exclude it so the tree is genuinely
-    # clean for the in-place dirty-tree check, matching a real user's repo.
-    (git_repo / ".git" / "info" / "exclude").write_text("/fakebin/\n")
 
     rc = ops_delegate.cmd_delegate(_args(in_place=True, verify="true"))
     receipt = json.loads(capsys.readouterr().out)

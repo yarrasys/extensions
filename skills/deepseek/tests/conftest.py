@@ -23,26 +23,41 @@ def git_repo(tmp_path):
     return tmp_path
 
 
+_CLAUDE_IMPL = (
+    "import json, os, sys\n"
+    "edit = os.environ.get('FAKE_EDIT_FILE')\n"
+    "if edit:\n"
+    "    open(edit, 'a').write('# edited by fake claude\\n')\n"
+    "rc = int(os.environ.get('FAKE_RC', '0'))\n"
+    "if rc == 0:\n"
+    "    print(json.dumps({'result': 'done', 'num_turns': 2, 'total_cost_usd': 0.0012}))\n"
+    "else:\n"
+    "    sys.stderr.write('boom\\n')\n"
+    "sys.exit(rc)\n"
+)
+
+
 @pytest.fixture
-def fake_claude(tmp_path, monkeypatch):
+def fake_claude(tmp_path_factory, monkeypatch):
     """Put a fake `claude` on PATH. It writes canned JSON to stdout and, if asked,
-    touches a file in cwd to simulate an edit. Controlled via env the test sets."""
-    bin_dir = tmp_path / "fakebin"
-    bin_dir.mkdir()
+    touches a file in cwd to simulate an edit. Controlled via env the test sets.
+
+    Lives in its own tmp dir (not the `git_repo` fixture's tmp_path) so its PATH
+    shim never lands inside a test repo's working tree. Cross-platform: a POSIX
+    shebang launcher plus a Windows `.bat` launcher both delegate to the same
+    `_claude_impl.py`, so this resolves on windows-latest CI too.
+    """
+    bin_dir = tmp_path_factory.mktemp("fakebin")
+    impl = bin_dir / "_claude_impl.py"
+    impl.write_text(_CLAUDE_IMPL)
+
     script = bin_dir / "claude"
-    script.write_text(
-        "#!/usr/bin/env python3\n"
-        "import json, os, sys\n"
-        "edit = os.environ.get('FAKE_EDIT_FILE')\n"
-        "if edit:\n"
-        "    open(edit, 'a').write('# edited by fake claude\\n')\n"
-        "rc = int(os.environ.get('FAKE_RC', '0'))\n"
-        "if rc == 0:\n"
-        "    print(json.dumps({'result': 'done', 'num_turns': 2, 'total_cost_usd': 0.0012}))\n"
-        "else:\n"
-        "    sys.stderr.write('boom\\n')\n"
-        "sys.exit(rc)\n"
-    )
+    script.write_text(f'#!/bin/sh\nexec python3 "{impl}" "$@"\n')
     script.chmod(0o755)
+
+    if os.name == "nt":
+        bat = bin_dir / "claude.bat"
+        bat.write_text(f'@echo off\r\npython "{impl}" %*\r\n')
+
     monkeypatch.setenv("PATH", f"{bin_dir}{os.pathsep}{os.environ['PATH']}")
     return script

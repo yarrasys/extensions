@@ -42,6 +42,7 @@ See [`plugins/kdbx`](plugins/kdbx) for what the plugin adds over the skill.
 | Skill | Description | Docs |
 |-------|-------------|------|
 | [**kdbx**](skills/kdbx) | Per-project/per-env credentials in key-file-only KeePassXC vaults — replaces `.env`, injects secrets into commands without printing them, and enforces an agent/human boundary (agents read & use; humans write). | [SKILL.md](skills/kdbx/SKILL.md) · [README](skills/kdbx/README.md) · [plugin](plugins/kdbx) |
+| [**deepseek**](skills/deepseek) | Delegate simple dev tasks to a nested `claude` running on DeepSeek's Anthropic-compatible endpoint — offload-and-write for token efficiency; worktree-isolated, verified, receipt-only. | [SKILL.md](skills/deepseek/SKILL.md) |
 
 ## Repository layout
 
