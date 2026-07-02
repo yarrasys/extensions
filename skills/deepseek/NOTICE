@@ -1,0 +1,9 @@
+deepseek skill
+Copyright (c) 2026 Nabeel Shaheen
+Licensed under the MIT License (see LICENSE).
+
+── Third-party components ─────────────────────────────────────────────────
+
+This skill shells out to the `claude` CLI (Claude Code) and the DeepSeek API via its
+Anthropic-compatible endpoint. It bundles no third-party Python dependencies. Repo source is MIT.
+Runtime prerequisites (`claude`, `git`, `uv`) are provided by the user's environment.
