@@ -11,11 +11,12 @@ def _git(repo: pathlib.Path, *args: str) -> str:
 
 
 def numstat(repo: pathlib.Path) -> list[dict]:
-    # stage everything (incl. untracked) into the index without committing, read numstat,
-    # then reset the index so we leave the working tree untouched.
+    # Snapshot the index, stage everything (incl. untracked) to read numstat, then
+    # restore the index exactly — never clobber a caller's pre-existing staged state.
+    saved = _git(repo, "write-tree").strip()
     _git(repo, "add", "-A")
-    out = _git(repo, "diff", "--cached", "--numstat")
-    _git(repo, "reset", "-q")
+    out = _git(repo, "diff", "--cached", "--numstat", "--no-renames")
+    _git(repo, "read-tree", saved)
     stats = []
     for line in out.splitlines():
         added, deleted, path = line.split("\t")

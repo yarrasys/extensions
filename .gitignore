@@ -20,6 +20,9 @@ venv/
 # ── Local Claude Code dev config (not part of the skill) ───────────────
 .claude/
 
+# ── Skill working directories ────────────────────────────────────────
+.deepseek/
+
 # ── OS / editor ────────────────────────────────────────────────────────
 .DS_Store
 *.swp
