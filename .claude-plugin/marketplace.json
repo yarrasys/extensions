@@ -13,6 +13,12 @@
       "source": "./plugins/kdbx",
       "description": "KeePassXC credentials manager: per-project/per-env secrets in key-file-only .kdbx vaults, with an enforced agent/human role-guard hook and safe MCP tools.",
       "version": "0.2.1"
+    },
+    {
+      "name": "deepseek",
+      "source": "./plugins/deepseek",
+      "description": "Offload simple, mechanical dev tasks to a nested headless claude on DeepSeek's endpoint, with an enforced autonomy-guard hook and /deepseek:* commands.",
+      "version": "0.1.0"
     }
   ]
 }
