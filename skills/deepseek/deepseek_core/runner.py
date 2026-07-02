@@ -2,6 +2,7 @@
 
 import json
 import pathlib
+import subprocess
 from collections.abc import Mapping
 
 ENDPOINT = "https://api.deepseek.com/anthropic"
@@ -51,3 +52,35 @@ def write_child_settings(dir_: pathlib.Path, model: str) -> pathlib.Path:
     p = dir_ / "deepseek-child-settings.json"
     p.write_text(json.dumps(settings, indent=2))
     return p
+
+
+def run_child(argv, env, cwd, timeout: int) -> dict:
+    try:
+        proc = subprocess.run(
+            argv,
+            env=dict(env),
+            cwd=str(cwd),
+            capture_output=True,
+            text=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        return {"ok": False, "result": None, "returncode": -1, "stderr_tail": "timeout"}
+    stderr_tail = "\n".join(proc.stderr.strip().splitlines()[-5:])
+    if proc.returncode != 0:
+        return {
+            "ok": False,
+            "result": None,
+            "returncode": proc.returncode,
+            "stderr_tail": stderr_tail,
+        }
+    try:
+        result = json.loads(proc.stdout)
+    except json.JSONDecodeError:
+        return {
+            "ok": False,
+            "result": None,
+            "returncode": 0,
+            "stderr_tail": "unparseable child output",
+        }
+    return {"ok": True, "result": result, "returncode": 0, "stderr_tail": stderr_tail}
