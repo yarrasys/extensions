@@ -10,8 +10,9 @@ DEPTH_ENV = "DEEPSEEK_DELEGATE_DEPTH"
 
 
 def resolve_key(environ: Mapping):
-    # v1: env only. kdbx resolution is wired in ops.cmd_delegate (subprocess) so this
-    # stays pure and testable.
+    # v1: resolves the key from $DEEPSEEK_API_KEY only. kdbx is an external wrapper the
+    # human runs (e.g. `kdbx run -- ...`), not called here — this function stays pure
+    # and testable, reading only the environ it's handed.
     return environ.get("DEEPSEEK_API_KEY") or None
 
 

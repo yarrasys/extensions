@@ -35,13 +35,18 @@ uv run --locked <SKILL_DIR>/deepseek.py <op> [args]
 | `init` | write a starter `.deepseek.json` to cwd (refuses to overwrite) |
 | `check` | offline preflight: `claude`/`git` on PATH, `DEEPSEEK_API_KEY` resolvable; exit 0/3 |
 | `config` | print the merged effective config (defaults + `.deepseek.json`) as JSON |
-| `delegate --task "…" [--file F ...] [--dir D] [--in-place] [--verify CMD] [--model M]` | run the child, verify, guardrail-check, and either write a patch or apply in place |
+| `delegate --task "…" [--file F ...] [--dir D] [--in-place] [--verify CMD] [--model M]` | run the child, verify, guardrail-check, and either write a patch or apply in place. ⚠️ `--file` is accepted but **not yet enforced** in v1 — see below. |
 | `apply PATCH` | `git apply` a `.deepseek/edit-*.patch` produced by a prior `delegate` |
 
 `delegate` defaults to **worktree + patch**: the child edits a disposable worktree, the diff is
 written to `.deepseek/edit-<tag>.patch` in the real repo, and nothing in your working tree changes
 until you review and run `apply`. Pass `--in-place` to skip isolation and let `delegate` apply
 directly to the current tree — it refuses if the tree is dirty (commit or stash first).
+
+⚠️ **`--file` does not scope the edit.** It's accepted by the CLI but not yet read by `delegate` in
+v1 — the delegated child always sees the whole repo (within `ALLOWED_TOOLS`), not just the named
+file(s). To actually scope what the child touches, be specific in `--task`'s description and/or
+rely on `auto.denyGlobs` in `.deepseek.json` — don't count on `--file` to fence the edit.
 
 ## Autonomy modes (`.deepseek.json` → `mode`)
 
@@ -56,17 +61,19 @@ the same way. `mode` is a **contract for the parent agent/orchestrator** driving
 
 ## Reading a receipt
 
-Every `delegate` prints one JSON object to stdout: `{status, workspace, files, verify, patch,
-cost, turns}`. Act on `status`:
+Every `delegate` prints one JSON object to stdout: `{status, workspace, files, verify, cost,
+turns}` are **always present**. A `patch` key (path to the withheld patch, under `.deepseek/`) is
+added **only when `status == "patch_ready"`** — every other status omits it entirely (don't index
+`receipt["patch"]` unconditionally). Act on `status`:
 
 | `status` | Exit | Meaning / what to do next |
 |----------|------|----------------------------|
-| `patch_ready` | 0 | Success, isolated. Review `patch` (a path under `.deepseek/`), then `deepseek apply <patch>` to land it. |
-| `applied` | 0 | Success, `--in-place`. Change is already in the working tree — review with `git diff`. |
-| `verify_failed` | 5 | The child's edit failed `verify` (default `ruff check {file}`, or `--verify`/`verifyDefault`). Nothing was applied; `receipt.verify.tail` has the last lines of output. |
-| `budget_exceeded` | 6 | Child-reported cost exceeded `auto.maxCostUsdPerRun`. Nothing applied. |
-| `denied` | 6 | The change touched a path matching `auto.denyGlobs`. Nothing applied; `receipt.files` shows what changed. |
-| `error` | 7 | The child process itself failed or produced unparseable output. No receipt fields beyond the shell (`files: []`, `cost.reported_usd: null`). |
+| `patch_ready` | 0 | Success, isolated. Receipt includes `patch` (a path under `.deepseek/`). Review it, then `deepseek apply <patch>` to land it. |
+| `applied` | 0 | Success, `--in-place`. No `patch` key — the change is already in the working tree, review with `git diff`. |
+| `verify_failed` | 5 | The child's edit failed `verify` (default `ruff check {file}`, or `--verify`/`verifyDefault`). No `patch` key; nothing was applied; `receipt.verify.tail` has the last lines of output. |
+| `budget_exceeded` | 6 | Child-reported cost exceeded `auto.maxCostUsdPerRun`. No `patch` key; nothing applied. |
+| `denied` | 6 | The change touched a path matching `auto.denyGlobs`. No `patch` key; nothing applied; `receipt.files` shows what changed. |
+| `error` | 7 | The child process itself failed or produced unparseable output. No `patch` key; no receipt fields beyond the shell (`files: []`, `cost.reported_usd: null`). |
 
 Other exit codes: `2` `apply` given a patch that doesn't exist · `3` `check` failed, or `delegate`
 found no `DEEPSEEK_API_KEY` · `4` `delegate` refused to recurse (see below), or `init` refused to

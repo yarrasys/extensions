@@ -46,7 +46,7 @@ def cmd_delegate(args) -> int:
     repo = pathlib.Path(args.dir).resolve() if args.dir else pathlib.Path.cwd()
     cfg = config.load_config(repo)
     model = args.model or cfg["model"]
-    verify_cmd = args.verify or cfg.get("verifyDefault")
+    verify_cmd = args.verify if args.verify is not None else cfg.get("verifyDefault")
     isolate = (
         not args.in_place
     )  # auto-mode isolation is enforced by the parent choosing not to pass --in-place

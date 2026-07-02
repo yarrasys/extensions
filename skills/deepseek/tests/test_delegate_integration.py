@@ -30,6 +30,19 @@ def test_delegate_worktree_produces_patch(git_repo, fake_claude, monkeypatch, ca
     assert "fake claude" not in (git_repo / "a.py").read_text()
 
 
+def test_delegate_empty_verify_disables_verification(git_repo, fake_claude, monkeypatch, capsys):
+    monkeypatch.chdir(git_repo)
+    monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
+    monkeypatch.setenv("FAKE_EDIT_FILE", "a.py")
+    monkeypatch.delenv("DEEPSEEK_DELEGATE_DEPTH", raising=False)
+
+    rc = ops_delegate.cmd_delegate(_args(verify=""))
+    receipt = json.loads(capsys.readouterr().out)
+    assert receipt["status"] == "patch_ready"  # worktree default
+    assert receipt["verify"] is None  # verification was skipped, not run
+    assert rc == 0
+
+
 def test_delegate_refuses_recursion(git_repo, monkeypatch, capsys):
     monkeypatch.chdir(git_repo)
     monkeypatch.setenv("DEEPSEEK_API_KEY", "sk-test")
